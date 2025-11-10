@@ -1,23 +1,20 @@
-// ./app/query/route.ts
-
 import postgres from 'postgres';
-import { NextResponse } from 'next/server'; // Importação útil para Next.js Routes
+import { NextResponse } from 'next/server'; 
 
 // Inicialização da conexão com o banco de dados
 // A variável de ambiente POSTGRES_URL! é usada, com '!' indicando que é garantida a existência (non-null assertion).
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
-/**
+/*
  * Função assíncrona para buscar a lista de faturas do banco de dados.
- * Usa a sintaxe de Template Tagged Literal para consultas seguras.
  */
 async function listInvoices() {
-  // A consulta SQL está correta, envolvida por crases (` `) e prefixada pela tag 'sql'.
+  // A consulta SQL 
   const data = await sql`
       SELECT invoices.amount, customers.name
       FROM invoices
       JOIN customers ON invoices.customer_id = customers.id
-      WHERE invoices.amount = 666;
+      WHERE invoices.amount >= 1;
     `;
 
   // Em 'postgres.js', o resultado da consulta é um array de objetos, o que é ideal.
@@ -48,5 +45,4 @@ export async function GET() {
     );
   }
   
-  // O código de placeholder foi removido para que o bloco try/catch seja executado!
 }
