@@ -5,6 +5,8 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import postgres from 'postgres';
 import { notFound } from 'next/navigation';
+import { signIn } from '@/auth';
+import { AuthError } from 'next-auth';
 
 // Inicialização do Cliente Postgres
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
@@ -36,7 +38,6 @@ export type State = {
     message?: string | null;
 };
 // ---------------------------------------------
-
 
 export async function createInvoice(formData: FormData) {
     const validatedFields = CreateInvoice.safeParse({
@@ -72,8 +73,11 @@ export async function createInvoice(formData: FormData) {
     redirect('/dashboard/invoices');
 }
 
-
-export async function updateInvoice(id: string, formData: FormData) {
+export async function updateInvoice(
+    id: string,
+    prevState: State,
+    formData: FormData,
+) {
     const validatedFields = UpdateInvoice.safeParse({
         customerId: formData.get('customerId'),
         amount: formData.get('amount'),
@@ -97,7 +101,6 @@ export async function updateInvoice(id: string, formData: FormData) {
           WHERE id = ${id}
         `;
     } catch (error) {
-        console.error(error);
         return { message: 'Database Error: Failed to Update Invoice.' };
     }
 
@@ -105,17 +108,43 @@ export async function updateInvoice(id: string, formData: FormData) {
     redirect('/dashboard/invoices');
 }
 
-
 export async function deleteInvoice(id: string) {
     try {
         await sql`
             DELETE FROM invoices WHERE id = ${id}
         `;
     } catch (error) {
-        // Loga o erro e aciona a página not-found.tsx
         console.error('Database Error: Failed to Delete Invoice.', error);
-        notFound(); 
+        notFound();
     }
 
     revalidatePath('/dashboard/invoices');
+}
+
+// CORREÇÃO APLICADA AQUI: Adição da lógica de redirecionamento em caso de sucesso.
+export async function authenticate(
+    prevState: string | undefined,
+    formData: FormData,
+) {
+    // Extrai o campo oculto 'redirectTo' do formulário para saber onde redirecionar.
+    const redirectTo = formData.get('redirectTo') as string;
+
+    try {
+        await signIn('credentials', formData);
+    } catch (error) {
+        if (error instanceof AuthError) {
+            switch (error.type) {
+                case 'CredentialsSignin':
+                    return 'Invalid credentials.';
+                default:
+                    return 'Something went wrong.';
+            }
+        }
+        // É importante relançar outros erros, como falha de rede/servidor
+        throw error;
+    }
+
+    // Se a autenticação foi bem-sucedida (não houve erro), redirecione.
+    // O valor padrão de redirectTo (do LoginForm) é /dashboard
+    redirect(redirectTo || '/dashboard');
 }
