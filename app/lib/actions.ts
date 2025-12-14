@@ -7,11 +7,12 @@ import postgres from 'postgres';
 import { notFound } from 'next/navigation';
 import { signIn } from '@/auth';
 import { AuthError } from 'next-auth';
+import * as bcrypt from 'bcryptjs';
 
 // Inicialização do Cliente Postgres
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
-// --- Esquemas de Validação Zod (Mantidos) ---
+// --- Esquemas de Validação Zod (EXISTENTES) ---
 const FormSchema = z.object({
     id: z.string(),
     customerId: z.string({
@@ -38,6 +39,32 @@ export type State = {
     message?: string | null;
 };
 // ---------------------------------------------
+
+// --- NOVO Esquema e Tipo para Cadastro (Register) ---
+
+const RegisterSchema = z.object({
+    name: z.string().min(1, { message: 'O nome é obrigatório.' }),
+    email: z.string().email({ message: 'Email inválido.' }),
+    password: z.string().min(6, { message: 'A senha deve ter no mínimo 6 caracteres.' }),
+    confirmPassword: z.string().min(6, { message: 'A confirmação de senha é obrigatória.' }),
+}).refine((data) => data.password === data.confirmPassword, {
+    message: "As senhas não coincidem.",
+    path: ["confirmPassword"], // Define onde o erro será anexado (no campo de confirmação)
+});
+
+export type RegisterState = {
+    errors?: {
+        name?: string[];
+        email?: string[];
+        password?: string[];
+        confirmPassword?: string[];
+    };
+    message?: string | null;
+};
+
+// ---------------------------------------------
+
+// --- AÇÕES EXISTENTES (Invoices) ---
 
 export async function createInvoice(formData: FormData) {
     const validatedFields = CreateInvoice.safeParse({
@@ -121,7 +148,8 @@ export async function deleteInvoice(id: string) {
     revalidatePath('/dashboard/invoices');
 }
 
-// CORREÇÃO APLICADA AQUI: Adição da lógica de redirecionamento em caso de sucesso.
+// --- AÇÃO DE LOGIN EXISTENTE (Authentication) ---
+
 export async function authenticate(
     prevState: string | undefined,
     formData: FormData,
@@ -140,11 +168,57 @@ export async function authenticate(
                     return 'Something went wrong.';
             }
         }
-        // É importante relançar outros erros, como falha de rede/servidor
         throw error;
     }
 
-    // Se a autenticação foi bem-sucedida (não houve erro), redirecione.
-    // O valor padrão de redirectTo (do LoginForm) é /dashboard
+    // Se a autenticação foi bem-sucedida, redirecione.
     redirect(redirectTo || '/dashboard');
+}
+
+
+// --- NOVA AÇÃO: Cadastro de Usuário (registerUser) ---
+
+export async function registerUser(prevState: RegisterState, formData: FormData) {
+    // 1. Validação dos campos
+    const validatedFields = RegisterSchema.safeParse({
+        name: formData.get('name'),
+        email: formData.get('email'),
+        password: formData.get('password'),
+        confirmPassword: formData.get('confirmPassword'),
+    });
+
+    // 1.1. Retorna erros de validação se falhar
+    if (!validatedFields.success) {
+        return {
+            errors: validatedFields.error.flatten().fieldErrors,
+            message: 'Campos inválidos ou senhas não coincidem.',
+        };
+    }
+
+    const { name, email, password } = validatedFields.data;
+
+    try {
+        // 2. Checa se o usuário já existe
+        const existingUser = await sql`SELECT email FROM users WHERE email = ${email}`;
+        if (existingUser.length > 0) {
+            return { message: 'Este email já está cadastrado.' };
+        }
+
+        // 3. Hash da senha antes de salvar
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // 4. Insere o novo usuário no banco de dados
+        await sql`
+          INSERT INTO users (name, email, password)
+          VALUES (${name}, ${email}, ${hashedPassword})
+        `;
+    } catch (error) {
+        console.error('Database Error during registration:', error);
+        return {
+            message: 'Erro no Banco de Dados: Falha ao cadastrar o usuário.',
+        };
+    }
+
+    // 5. Redireciona para a página de login após cadastro bem-sucedido
+    redirect('/login?success=true'); // Adicionado 'success=true' opcionalmente para feedback
 }

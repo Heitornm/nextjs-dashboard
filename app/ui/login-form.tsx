@@ -1,5 +1,6 @@
+// app/ui/login-form.tsx (versão modificada)
 'use client';
- 
+
 import { lusitana } from '@/app/ui/fonts';
 import {
   AtSymbolIcon,
@@ -11,7 +12,9 @@ import { Button } from '@/app/ui/button';
 import { useActionState } from 'react';
 import { authenticate } from '@/app/lib/actions';
 import { useSearchParams } from 'next/navigation';
- 
+// Novo import:
+import Link from 'next/link';
+
 export default function LoginForm() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
@@ -19,7 +22,7 @@ export default function LoginForm() {
     authenticate,
     undefined,
   );
- 
+
   return (
     <form action={formAction} className="space-y-3">
       <div className="flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
@@ -27,6 +30,7 @@ export default function LoginForm() {
           Please log in to continue.
         </h1>
         <div className="w-full">
+          {/* ... CAMPOS DE EMAIL E SENHA ... */}
           <div>
             <label
               className="mb-3 mt-5 block text-xs font-medium text-gray-900"
@@ -68,9 +72,23 @@ export default function LoginForm() {
           </div>
         </div>
         <input type="hidden" name="redirectTo" value={callbackUrl} />
+
+        {/* BOTÃO DE LOGIN */}
         <Button className="mt-4 w-full" aria-disabled={isPending}>
           Log in <ArrowRightIcon className="ml-auto h-5 w-5 text-gray-50" />
         </Button>
+
+        {/* NOVO LINK DE REGISTRO AQUI! */}
+        <div className="mt-4 text-center">
+          <Link
+            href="/register"
+            className="text-sm text-blue-600 hover:text-blue-800 underline font-medium"
+          >
+            Não tem conta? Cadastre-se!
+          </Link>
+        </div>
+
+        {/* BLOCO DE ERRO */}
         <div
           className="flex h-8 items-end space-x-1"
           aria-live="polite"
