@@ -13,8 +13,8 @@ export default function RootLayout({
         Note que isso deve ser usado com moderação, apenas em casos como este 
         em que um atributo injetado externamente está causando o conflito.
       */}
-      <body 
-        className={`${inter.className} antialiased`} 
+      <body
+        className={`${inter.className} antialiased`}
         suppressHydrationWarning={true}
       >
         {children}
