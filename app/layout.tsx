@@ -1,6 +1,5 @@
-// app/layout.tsx - SOLUÇÃO COM SUPPRESSHYDRATIONWARNING
-
-import { inter } from '@/app/ui/fonts'; // Certifique-se de importar suas fontes
+import '@/app/ui/global.css';
+import { inter } from '@/app/ui/fonts'; 
 
 export default function RootLayout({
   children,
@@ -13,8 +12,8 @@ export default function RootLayout({
         Note que isso deve ser usado com moderação, apenas em casos como este 
         em que um atributo injetado externamente está causando o conflito.
       */}
-      <body
-        className={`${inter.className} antialiased`}
+      <body 
+        className={`${inter.className} antialiased`} 
         suppressHydrationWarning={true}
       >
         {children}
