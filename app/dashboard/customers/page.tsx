@@ -14,14 +14,11 @@ export const metadata: Metadata = {
 export default async function Page({
   searchParams,
 }: {
-  // O tipo correto para o App Router (não é uma Promise)
-  searchParams?: {
-    query?: string;
-  };
+  searchParams: Promise<{ query?: string }>;
 }) {
 
-  // O acesso correto: sem 'await'
-  const query = searchParams?.query || '';
+  const params = await searchParams;
+  const query = params?.query || '';
   
   const customers = await fetchFilteredCustomers(query);
 

@@ -15,14 +15,12 @@ const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 // --- Esquemas de Validação Zod (EXISTENTES) ---
 const FormSchema = z.object({
     id: z.string(),
-    customerId: z.string({
-        invalid_type_error: 'Please select a customer.',
-    }),
+    customerId: z.string().min(1, { message: 'Please select a customer.' }),
     amount: z.coerce
         .number()
         .gt(0, { message: 'Please enter an amount greater than $0.' }),
     status: z.enum(['pending', 'paid'], {
-        invalid_type_error: 'Please select an invoice status.',
+        message: 'Please select an invoice status.',
     }),
     date: z.string(),
 });
@@ -66,7 +64,7 @@ export type RegisterState = {
 
 // --- AÇÕES EXISTENTES (Invoices) ---
 
-export async function createInvoice(formData: FormData) {
+export async function createInvoice(prevState: State, formData: FormData) {
     const validatedFields = CreateInvoice.safeParse({
         customerId: formData.get('customerId'),
         amount: formData.get('amount'),

@@ -23,9 +23,9 @@ import { registerUser } from '@/app/lib/actions';
 // fazemos a checagem no runtime.)
 
 export default function RegisterForm() {
-  const [errorMessage, formAction, isPending] = useActionState(
+  const [state, formAction] = useActionState(
     registerUser,
-    undefined,
+    { message: '', errors: {} },
   );
 
   // Hook para ler parâmetros da URL
@@ -35,9 +35,7 @@ export default function RegisterForm() {
   // CORREÇÃO: Extrai a string 'message' do objeto de erro.
   // Se errorMessage for um objeto e tiver a propriedade 'message', usa-a.
   // Caso contrário, usa undefined ou null.
-  const messageToDisplay = typeof errorMessage === 'object' && errorMessage !== null && 'message' in errorMessage 
-    ? errorMessage.message 
-    : errorMessage; // Se for string (caso de erro não validado, por exemplo), retorna a própria string.
+  const messageToDisplay = state.message;
 
   return (
     <form action={formAction} className="space-y-3">
@@ -142,7 +140,7 @@ export default function RegisterForm() {
 
         </div>
 
-        <Button className="mt-6 w-full" aria-disabled={isPending}>
+        <Button className="mt-6 w-full">
           Cadastrar <ArrowRightIcon className="ml-auto h-5 w-5 text-gray-50" />
         </Button>
 

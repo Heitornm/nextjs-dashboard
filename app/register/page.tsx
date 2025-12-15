@@ -1,5 +1,6 @@
 import AcmeLogo from '@/app/ui/acme-logo';
 import RegisterForm from '@/app/ui/register-form'; // Importe o novo componente
+import { Suspense } from 'react';
 
 export default function LoginPage() {
     return (
@@ -10,7 +11,9 @@ export default function LoginPage() {
                         <AcmeLogo />
                     </div>
                 </div>
-                <RegisterForm />
+                <Suspense fallback={<div>Loading...</div>}>
+                    <RegisterForm />
+                </Suspense>
             </div>
         </main>
     );
