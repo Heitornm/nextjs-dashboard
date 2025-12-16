@@ -9,7 +9,6 @@ import { RevenueChartSkeleton, LatestInvoicesSkeleton, CardsSkeleton } from '../
 export const dynamic = 'force-dynamic';
 
 export default async function Page() {
-  // O código abaixo funciona, mas veja a Sugestão 3 para melhor performance!
 
   return (
     <main>
