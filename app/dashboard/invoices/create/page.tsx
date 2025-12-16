@@ -2,8 +2,7 @@ import Form from '@/app/ui/invoices/create-form';
 import Breadcrumbs from '@/app/ui/invoices/breadcrumbs';
 import { fetchCustomers } from '@/app/lib/data';
 
-// ADICIONE ESTA LINHA: Força a renderização do lado do servidor (SSR)
-// e desativa o SSG (Static Site Generation), contornando o erro de BD no build time.
+// CORREÇÃO: Força o SSR para evitar o erro de conexão no build time.
 export const dynamic = 'force-dynamic';
 
 export default async function Page() {
