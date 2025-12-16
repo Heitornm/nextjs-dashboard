@@ -5,6 +5,9 @@ import { lusitana } from '../ui/fonts'; // Corrigido para caminho relativo
 import { Suspense } from 'react';
 import { RevenueChartSkeleton, LatestInvoicesSkeleton, CardsSkeleton } from '../ui/skeletons'; // Corrigido para caminho relativo
 
+
+export const dynamic = 'force-dynamic';
+
 export default async function Page() {
   // O código abaixo funciona, mas veja a Sugestão 3 para melhor performance!
 
