@@ -8,7 +8,7 @@ import type { User } from '@/app/lib/definitions';
 import * as bcrypt from 'bcryptjs';
 import postgres from 'postgres';
  
-const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
+const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require', prepare: false });
  
 // 1. Definição do Esquema de Credenciais
 const CredentialsSchema = z.object({
