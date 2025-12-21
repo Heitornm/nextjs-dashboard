@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { deleteInvoice } from '@/app/lib/actions'; // Importe sua Server Action
 import React, { useState } from 'react';
 // Importe o novo Modal
-import { ConfirmationModal } from './ConfirmatioModal'; // ⬅️ Ajuste o caminho se necessário
+import { ConfirmationModal } from './ConfirmationModal'; // ⬅️ Ajuste o caminho se necessário
 
 export function CreateInvoice() {
   return (
