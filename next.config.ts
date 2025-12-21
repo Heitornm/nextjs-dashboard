@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
   eslint: {
     // Esta linha diz ao Next.js para ignorar o processo de Linting durante o build de produção.
     // É a solução mais rápida para o erro de Estrutura Circular.
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: false,
   },
   
   /* config options here (outras configurações que você possa ter) */
