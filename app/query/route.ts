@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 
 // Inicialização da conexão com o banco de dados
 // A variável de ambiente POSTGRES_URL! é usada, com '!' indicando que é garantida a existência (non-null assertion).
-const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
+const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require', prepare: false });
 
 /*
  * Função assíncrona para buscar a lista de faturas do banco de dados.

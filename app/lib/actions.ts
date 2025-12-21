@@ -10,7 +10,7 @@ import { AuthError } from 'next-auth';
 import * as bcrypt from 'bcryptjs';
 
 // Inicialização do Cliente Postgres
-const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
+const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require', prepare: false });
 
 // --- Esquemas de Validação Zod (EXISTENTES) ---
 const FormSchema = z.object({
