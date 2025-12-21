@@ -55,7 +55,7 @@ export async function fetchCardData() {
   try {
     const invoiceCountPromise = sql`SELECT COUNT(*) FROM invoices`;
     const customerCountPromise = sql`SELECT COUNT(*) FROM customers`;
-    const userCountPromise = sql`SELECT COUNT(*) FROM users`;
+    const userCountPromise = sql`SELECT COUNT(*) FROM users`; // Nova query
     const invoiceStatusPromise = sql`SELECT
         SUM(CASE WHEN status = 'paid' THEN amount ELSE 0 END) AS "paid",
         SUM(CASE WHEN status = 'pending' THEN amount ELSE 0 END) AS "pending"
@@ -64,25 +64,18 @@ export async function fetchCardData() {
     const data = await Promise.all([
       invoiceCountPromise,
       customerCountPromise,
-      userCountPromise, // Adicionado ao Promise.all
+      userCountPromise,
       invoiceStatusPromise,
     ]);
 
-    // Somamos a contagem de customers (data[1]) com a contagem de users (data[2])
-    const totalCustomersCount = Number(data[1][0].count ?? '0');
-    const totalUsersCount = Number(data[2][0].count ?? '0');
-
-    const combinedUserTotal = totalCustomersCount + totalUsersCount; // A soma desejada
-
-    const numberOfInvoices = Number(data[0][0].count ?? '0');
-    const totalPaidInvoices = formatCurrency(data[3][0].paid ?? '0'); // Ajustado índice para 3
-    const totalPendingInvoices = formatCurrency(data[3][0].pending ?? '0'); // Ajustado índice para 3
+    // Soma as duas contagens
+    const totalCombinedUsers = Number(data[1][0].count ?? '0') + Number(data[2][0].count ?? '0');
 
     return {
-      numberOfCustomers: combinedUserTotal, // Agora retorna a soma total
-      numberOfInvoices,
-      totalPaidInvoices,
-      totalPendingInvoices,
+      numberOfCustomers: totalCombinedUsers, // Valor somado
+      numberOfInvoices: Number(data[0][0].count ?? '0'),
+      totalPaidInvoices: formatCurrency(data[3][0].paid ?? '0'),
+      totalPendingInvoices: formatCurrency(data[3][0].pending ?? '0'),
     };
   } catch (error) {
     console.error('Database Error:', error);
